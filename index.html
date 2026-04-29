@@ -226,12 +226,11 @@
 <div class="container">
 
   <h1>Radioactive Decay — Dice Simulator</h1>
-  <p class="subtitle">Each atom rolls a fair f-sided die each generation. Landing on the decay face = atom decays. Algorithm: <code>Math.floor(Math.random() * f) + 1</code></p>
-
+  <p class="subtitle">Each dice rolls a fair f-sided die each generation. Landing on the decay face = decay/remove.
   <div class="card">
     <div class="ctrl-row">
       <div class="cg">
-        <label>Starting atoms (N₀ ≥ 2)</label>
+        <label>Starting number (N₀ ≥ 2)</label>
         <input type="number" id="inN" value="100" min="2" step="1">
         <div class="err" id="errN"></div>
       </div>
@@ -254,14 +253,14 @@
   </div>
 
   <div class="stat-grid">
-    <div class="sc"><div class="sl">Atoms remaining</div><div class="sv" id="sAlive">—</div></div>
+    <div class="sc"><div class="sl">Die remaining</div><div class="sv" id="sAlive">—</div></div>
     <div class="sc"><div class="sl">Generation</div><div class="sv" id="sGen">—</div></div>
     <div class="sc"><div class="sl">Decayed this roll</div><div class="sv" id="sLast">—</div></div>
     <div class="sc"><div class="sl">Theoretical half-life</div><div class="sv" id="sHL">—</div></div>
     <div class="sc"><div class="sl">Decay probability</div><div class="sv" id="sP">—</div></div>
   </div>
 
-  <div class="section-label">Atoms (blue = alive with rolled face · faded ✕ = decayed)</div>
+  <div class="section-label">Die (blue = alive with rolled face | faded ✕ = decayed)</div>
   <div class="dice-zone" id="diceZone">
     <span style="color:var(--text2);font-size:13px;align-self:center">Press "Start experiment" to begin</span>
   </div>
@@ -287,7 +286,7 @@
 
 </div>
 
-<footer>Each die roll uses JavaScript's built-in Math.random() — a uniform pseudorandom number generator (Xorshift128+). Each atom is independent.</footer>
+<footer>Each die roll uses JavaScript's built-in Math.random() — a uniform pseudorandom number generator (Xorshift128+). Each dice is independent.</footer>
 
 <script>
 let alive = [], generation = 0, chart = null, autoTimer = null;
@@ -422,7 +421,7 @@ function addLog(gen, rem, dc, fin) {
   const d = document.createElement('div');
   d.className = 'log-row' + (fin ? ' finished' : '');
   d.textContent = fin
-    ? 'All atoms decayed after ' + gen + ' generations!'
+    ? 'All die decayed after ' + gen + ' generations!'
     : 'Gen ' + gen + ': ' + dc + ' decayed → ' + rem + ' remaining';
   box.prepend(d);
 }
@@ -512,7 +511,7 @@ function buildChart() {
       plugins: { legend: { display: false } },
       scales: {
         x: { title: { display: true, text: 'Generation', font: { size: 11 } }, ticks: { maxTicksLimit: 12, font: { size: 11 } } },
-        y: { title: { display: true, text: 'Atoms remaining', font: { size: 11 } }, min: 0, ticks: { font: { size: 11 } } }
+        y: { title: { display: true, text: 'Die remaining', font: { size: 11 } }, min: 0, ticks: { font: { size: 11 } } }
       },
       animation: { duration: 150 }
     }
