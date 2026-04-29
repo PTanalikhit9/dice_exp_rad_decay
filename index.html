@@ -262,7 +262,7 @@
 <div class="container">
 
   <h1>Radioactive Decay — Dice Simulator</h1>
-  <p class="subtitle">Each dice rolls a fair f-sided die each generation. Landing on the decay face = decay/remove.
+  <p class="subtitle">Roll f-sided dice each generation. Landing on the decay face = decayed/removed.
   <div class="theme-row">
     <span class="theme-label">Theme colour:</span>
     <button class="theme-btn active" data-theme="blue"   style="background:#378ADD" title="Blue"   onclick="setTheme('blue',this)"></button>
@@ -275,12 +275,12 @@
   <div class="card">
     <div class="ctrl-row">
       <div class="cg">
-        <label>Starting number (N₀ ≥ 2)</label>
+        <label>Initial number (N₀ ≥ 2)</label>
         <input type="number" id="inN" value="100" min="2" step="1">
         <div class="err" id="errN"></div>
       </div>
       <div class="cg">
-        <label>Die sides (f ≥ 2)</label>
+        <label>Faces (f ≥ 2)</label>
         <input type="number" id="inF" value="6" min="2" step="1">
         <div class="err" id="errF"></div>
       </div>
@@ -298,14 +298,14 @@
   </div>
 
   <div class="stat-grid">
-    <div class="sc"><div class="sl">Die remaining</div><div class="sv" id="sAlive">—</div></div>
+    <div class="sc"><div class="sl">Remaining dice</div><div class="sv" id="sAlive">—</div></div>
     <div class="sc"><div class="sl">Generation</div><div class="sv" id="sGen">—</div></div>
     <div class="sc"><div class="sl">Decayed this roll</div><div class="sv" id="sLast">—</div></div>
     <div class="sc"><div class="sl">Theoretical half-life</div><div class="sv" id="sHL">—</div></div>
     <div class="sc"><div class="sl">Decay probability</div><div class="sv" id="sP">—</div></div>
   </div>
 
-  <div class="section-label">Dice (coloured = alive with rolled face · faded ✕ = decayed)</div>
+  <div class="section-label">Dice (coloured = intact | ✕ = decayed)</div>
   <div class="dice-zone" id="diceZone">
     <span style="color:var(--text2);font-size:13px;align-self:center">Press "Start experiment" to begin</span>
   </div>
