@@ -80,11 +80,43 @@
 
   .container { max-width: 760px; margin: 0 auto; }
 
+  .header-row {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 4px;
+    flex-wrap: wrap;
+  }
+
   h1 {
     font-size: 22px;
     font-weight: 500;
-    margin-bottom: 4px;
+    margin-bottom: 0;
   }
+
+  .visitor-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    color: var(--text3);
+    background: var(--bg2);
+    border: 0.5px solid var(--border);
+    border-radius: 20px;
+    padding: 4px 10px;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .visitor-badge .dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--accent-border);
+    display: inline-block;
+    flex-shrink: 0;
+  }
+  .visitor-count { font-weight: 500; color: var(--text2); }
+
   .subtitle {
     font-size: 13px;
     color: var(--text2);
@@ -237,8 +269,17 @@
 <body>
 <div class="container">
 
-  <h1>Radioactive Decay — Dice Simulator</h1>
+  <div class="header-row">
+    <h1>Radioactive Decay — Dice Simulator</h1>
+    <div class="visitor-badge">
+      <span class="dot"></span>
+      <span id="visitorCount" class="visitor-count">…</span>
+      <span>visitors</span>
+    </div>
+  </div>
+
   <p class="subtitle">Roll f-sided dice each generation. Landing on the decay face = decayed/removed.</p>
+
   <div class="theme-row">
     <span class="theme-label">Theme colour:</span>
     <button class="theme-btn active" style="background:#378ADD" title="Blue"   onclick="setTheme('blue',this)"></button>
@@ -313,6 +354,32 @@
 <footer>Roll f-sided dice each generation. Landing on the decay face = decayed/removed. RNG: JavaScript Math.random() — Xorshift128+. Each die is independent.</footer>
 
 <script>
+/* ── Visitor counter ── */
+/* Uses CountAPI (countapi.xyz) — free, no account needed.
+   IMPORTANT: replace the namespace and key below with your own unique values
+   so your counter is separate from anyone else's.
+   Recommended: namespace = your GitHub username, key = decay-simulator */
+const COUNTER_NAMESPACE = 'PTanalikhit9'; // <-- change this
+const COUNTER_KEY       = 'decay-simulator';       // <-- change this if you want
+
+async function incrementAndShowVisitor() {
+  const el = document.getElementById('visitorCount');
+  try {
+    const res = await fetch(
+      `https://api.countapi.xyz/hit/${COUNTER_NAMESPACE}/${COUNTER_KEY}`
+    );
+    if (!res.ok) throw new Error('non-200');
+    const data = await res.json();
+    el.textContent = data.value.toLocaleString();
+  } catch {
+    // Network blocked or service unavailable — hide badge gracefully
+    el.closest('.visitor-badge').style.display = 'none';
+  }
+}
+
+incrementAndShowVisitor();
+
+/* ── Simulation state ── */
 let alive = [], diceRolls = [], generation = 0, chart = null, autoTimer = null;
 let simData = [], theoryData = [], labelData = [];
 let N0 = 100, f = 6, decayFace = 1;
@@ -440,33 +507,24 @@ function makeDieSVG(sides, label, isAlive) {
   const fontSize  = lbl.length >= 3 ? 9 : lbl.length === 2 ? 11 : 13;
   const sw = 1.5;
   let shape = '';
-  let ty = cy; // text y, may be nudged per shape
+  let ty = cy;
 
   if (sides === 4) {
-    // Tetrahedron → equilateral triangle, point up
     shape = `<polygon points="${cx},${cy-17} ${cx+15},${cy+8} ${cx-15},${cy+8}" fill="${fill}" stroke="${stroke}" stroke-width="${sw}"/>`;
     ty = cy + 2;
-
   } else if (sides === 6) {
-    // Cube → square with rounded corners
     const h = 14;
     shape = `<rect x="${cx-h}" y="${cy-h}" width="${h*2}" height="${h*2}" rx="5" fill="${fill}" stroke="${stroke}" stroke-width="${sw}"/>`;
-
   } else if (sides === 8) {
-    // Octahedron → diamond (square rotated 45°)
     const r = 17;
     shape = `<polygon points="${cx},${cy-r} ${cx+r},${cy} ${cx},${cy+r} ${cx-r},${cy}" fill="${fill}" stroke="${stroke}" stroke-width="${sw}"/>`;
-
   } else if (sides === 10) {
-    // Pentagonal trapezohedron → pentagon + inner pentagon rotated 36°
     const ro = 15, ri = 8;
     const ptsO = polyPts(5, cx, cy, ro, 0);
     const ptsI = polyPts(5, cx, cy, ri, Math.PI/5);
     shape = `<polygon points="${ptsO}" fill="${fill}" stroke="${stroke}" stroke-width="${sw}"/>`;
     shape += `<polygon points="${ptsI}" fill="none" stroke="${stroke}" stroke-width="${sw*0.8}" opacity="0.7"/>`;
-
   } else if (sides === 12) {
-    // Dodecahedron → 5-point star (alternating outer/inner pentagon)
     const ro = 16, ri = 7;
     let starPts = '';
     for (let k = 0; k < 5; k++) {
@@ -476,18 +534,13 @@ function makeDieSVG(sides, label, isAlive) {
       starPts += `${(cx + ri * Math.sin(ai)).toFixed(2)},${(cy - ri * Math.cos(ai)).toFixed(2)} `;
     }
     shape = `<polygon points="${starPts.trim()}" fill="${fill}" stroke="${stroke}" stroke-width="${sw}"/>`;
-
   } else if (sides === 20) {
-    // Icosahedron → outer triangle + inner inverted triangle
     const ro = 16, ri = 7;
     const ptsO = polyPts(3, cx, cy+1, ro, 0);
     const ptsI = polyPts(3, cx, cy+1, ri, Math.PI);
     shape = `<polygon points="${ptsO}" fill="${fill}" stroke="${stroke}" stroke-width="${sw}"/>`;
     shape += `<polygon points="${ptsI}" fill="none" stroke="${stroke}" stroke-width="${sw*0.8}" opacity="0.7"/>`;
-    ty = cy;
-
   } else {
-    // Circle: f=2 and all other values
     shape = `<circle cx="${cx}" cy="${cy}" r="16" fill="${fill}" stroke="${stroke}" stroke-width="${sw}"/>`;
   }
 
