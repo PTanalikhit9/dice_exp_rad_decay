@@ -355,24 +355,25 @@
 
 <script>
 /* ── Visitor counter ── */
-/* Uses CountAPI (countapi.xyz) — free, no account needed.
-   IMPORTANT: replace the namespace and key below with your own unique values
-   so your counter is separate from anyone else's.
-   Recommended: namespace = your GitHub username, key = decay-simulator */
-const COUNTER_NAMESPACE = 'PTanalikhit9'; // <-- change this
-const COUNTER_KEY       = 'decay-simulator';       // <-- change this if you want
+/* ── Visitor counter ──
+   Uses counterapi.dev — free, no account needed.
+   Replace YOUR_GITHUB_USERNAME with your actual GitHub username.
+   The counter is created automatically on first visit.            */
+const COUNTER_ID = 'PTanalikhit9-decay-simulator'; // <-- change YOUR_GITHUB_USERNAME
 
 async function incrementAndShowVisitor() {
   const el = document.getElementById('visitorCount');
   try {
     const res = await fetch(
-      `https://api.countapi.xyz/hit/${COUNTER_NAMESPACE}/${COUNTER_KEY}`
+      `https://api.counterapi.dev/v1/${COUNTER_ID}/up`,
+      { signal: AbortSignal.timeout(5000) }
     );
     if (!res.ok) throw new Error('non-200');
     const data = await res.json();
-    el.textContent = data.value.toLocaleString();
+    const count = data.count ?? data.value ?? data.hits;
+    if (count == null) throw new Error('no count field');
+    el.textContent = Number(count).toLocaleString();
   } catch {
-    // Network blocked or service unavailable — hide badge gracefully
     el.closest('.visitor-badge').style.display = 'none';
   }
 }
